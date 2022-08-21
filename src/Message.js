@@ -1,8 +1,11 @@
 
 
-function Message(props) {
+function Message( {author, text} ) {
   return (
-    <div> { props.text } </div>
+    <div>
+      <p>{author}</p>
+      <p>{text}</p>
+    </div>
   );
 }
 
