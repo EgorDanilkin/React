@@ -1,6 +1,16 @@
 import Message from "./Message";
 import MessageForm from "./MessageForm";
+import Chat from "./Chat"
 import {useEffect, useRef, useState} from "react";
+import {List, Box, Grid, Container, ThemeProvider, createTheme} from "@mui/material";
+import {orange} from "@mui/material/colors";
+
+const theme = createTheme({
+  palette: {
+    primary: orange,
+  },
+  spacing: 6,
+});
 
 function App() {
 
@@ -21,29 +31,37 @@ function App() {
     //   author: "Author 3"
     // },
   ]);
+  const [chatList, setChatList] = useState([
+    {
+      id: 1,
+      name: 'chat 1',
+    },
+    {
+      id: 2,
+      name: 'chat 2',
+    },
+  ]);
 
   const inputText = useRef(null);
   const inputAuthor = useRef(null);
 
   const addMessage = (text, author) => {
-    let newMessageList = [];
     let lustId = 1;
 
     if (messageList.length !== 0) {
-      newMessageList = Object.assign([], messageList);
       lustId = messageList[messageList.length - 1].id + 1;
     }
-    newMessageList.push({
-      id: lustId,
-      text: text,
-      author: author,
-    });
 
-    setMessageList(newMessageList);
+    setMessageList(prev => [...prev, {id: lustId, text: text, author: author}]);
   };
 
-  const sendMessage = () => {
-    addMessage(inputText.current.value, inputAuthor.current.value)
+  const sendMessage = (event) => {
+    event.preventDefault();
+
+    const text = event.target.text.value;
+    const author = event.target.author.value;
+
+    addMessage(text, author)
   };
 
   const robotMessage = () => {
@@ -54,29 +72,39 @@ function App() {
 
       if (lustMessage.author !== 'robot') {
         const text = `ответ для ${lustMessage.author}`;
-
-        setTimeout(addMessage, 1500, text, 'robot');
+        addMessage(text, 'robot');
       }
     }
   };
 
   useEffect(() => {
-    robotMessage();
-
+    setTimeout(() => {
+      robotMessage();
+    }, 1500);
   }, [messageList, robotMessage])
 
   return (
-    <>
-      {messageList.map(item => {
-        return(
-          <Message key={item.id} text={item.text} author={item.author}/>
-        )
-      })}
-
-      <br/>
-
-      <MessageForm inputText={inputText} inputAuthor={inputAuthor} sendMessage={sendMessage}/>
-    </>
+    <ThemeProvider theme={theme}>
+      <Container maxWidth="xl">
+        <Grid container justifyContent="center">
+          <Grid item md={3}>
+            {chatList.map( item => {
+              return (
+                <Chat key={item.id} name={item.name}/>
+              )
+            })}
+          </Grid>
+          <Grid item md={9}>
+            {messageList.map(item => {
+              return(
+                <Message key={item.id} text={item.text} author={item.author}/>
+              )
+            })}
+          </Grid>
+          <MessageForm sendMessage={sendMessage}/>
+        </Grid>
+      </Container>
+    </ThemeProvider>
   );
 }
 
