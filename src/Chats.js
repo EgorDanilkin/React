@@ -3,26 +3,23 @@ import {Grid, ListItem, List} from "@mui/material";
 import {Routes, Route, Outlet} from "react-router-dom";
 import CustomLink from "./Components/CustomLink";
 import Chat from "./Chat";
+import {useDispatch, useSelector} from "react-redux";
+import {chatsGetSelector} from "./redux/reducers/chatsSelector";
 
 const Chats = () => {
-  const [chatList, setChatList] = useState([
-    {
-      id: 1,
-      name: 'chat 1',
-    },
-    {
-      id: 2,
-      name: 'chat 2',
-    },
-  ]);
+  const chatList = useSelector(chatsGetSelector)
 
-  const deleteChat = (event) => {
-    const id = event.target.name;
+  const dispatch = useDispatch();
 
-    const newCatList = [...chatList]
-    newCatList.splice(chatList.findIndex(item => item.id == id), 1);
+  const deleteChat = (id) => {
+    dispatch({type: 'delete_chat', payload: id})
+  };
 
-    setChatList(newCatList);
+  const addChat = () => {
+    dispatch({type: 'add_chat', payload: {
+      id: Math.random(),
+      name: prompt(),
+      }})
   };
 
   return (
@@ -34,11 +31,12 @@ const Chats = () => {
               return (
                 <ListItem key={item.id}>
                   <CustomLink to={'chat/' + item.id}>
-                    {item.name} <button name={item.id} onClick={deleteChat}>X</button>
+                    {item.name} <button onClick={() => deleteChat(item.id)}>X</button>
                   </CustomLink>
                 </ListItem>
               )
             })}
+            <button onClick={addChat}>Добавить чат</button>
           </Grid>
           <Outlet />
         </Grid>
